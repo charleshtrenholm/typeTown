@@ -1,0 +1,16 @@
+<div class="banner">
+  <span class="banner-text">T y p e T o w n</span>
+</div>
+<div class="content-container">
+  <router-outlet></router-outlet>
+</div>
+<div class="bottom-menu">
+  <div class="row">
+    <button mat-button (click)="showJoinGroups()" class="waves-orange">Join Game</button>
+    <button mat-button (click)="showCreategame()">New Game</button>
+    <button mat-button (click)="showReadRules()">Read Rules</button>
+    <button mat-button [routerLink]="['/game']">Test Your Speed</button>
+  </div>
+  <!-- <div class="row">
+  </div> -->
+</div>
