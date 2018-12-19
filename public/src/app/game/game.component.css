@@ -8,19 +8,23 @@
 }
 
 .text-field-container{
+    padding: 10px;
     background-color: rgb(26,25,25);
     color: white;
     width: 95%;
     margin: 0px auto;
     border-radius: 10px;
     height: 30%;
+    font-family: monospace;
+    font-size: 2em;
+    overflow: scroll;
 }
 
 .keyboard-container{
     background-color: rgb(26,25,25);
     width: 95%;
     margin: 0px auto;
-    height: 60%;
+    height: 55%;
 }
 
 .score-display{
@@ -81,6 +85,7 @@
 .scoreText{
     display: inline-block;
     color: rgb(230, 10, 94);
+    font-size: 1.5em;
     width: 23%;
     margin-top: 12px;
     margin-left: 12px;
@@ -91,7 +96,9 @@
 }
 
 .underscore{
-    text-decoration: underline overline red;
+    /* text-decoration: underline overline red; */
+    background-color: white;
+    color: rgb(26,25,25)
 }
 
 .typed{

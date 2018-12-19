@@ -1,11 +1,11 @@
 <div class="entire-container">
-  <div class="text-field-container">
+  <div class="text-field-container" [scrollTop]="textFieldContainer">
     <span class="wordo" *ngFor="let word of typeArray" [class.underscore]="word.isCurrent" [class.typed]="word.wasTyped" [class.wrong]="word.gotWrong">{{word.char}}</span>
   </div>
   <div class="score-display">
-    <span class="scoreText">Time: </span>
-    <span class="scoreText">Accuracy: </span>
-    <span class="scoreText">Words Per Minute: </span>
+    <span class="scoreText">Time: {{ secondsLeft }}</span>
+    <span class="scoreText">Accuracy: {{ ((typeIndex - numberIncorrect)/typeIndex)*100 | number: '1.0-0' }}% </span>
+    <span class="scoreText">WPM: {{wpm}} </span>
     <span class="scoreText">Leader: </span>
   </div>
   <div class="keyboard-container">

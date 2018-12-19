@@ -70,8 +70,13 @@ export class GameComponent implements OnInit {
   shiftIsOn: boolean;
   typeArray: any[];
   typeIndex: number;
-  totalNumberTyped: number;
   numberIncorrect: number;
+  textFieldContainer: number;
+  secondsLeft: number;
+  wpm: string;
+  totalChars: number;
+  totalWords: number;
+  avgWordLength: number;
 
   constructor() { }
 
@@ -82,12 +87,18 @@ export class GameComponent implements OnInit {
 
     this.keys[event.keyCode].style = true;
     if (!this.gameHasStarted){
-      this.gameHasStarted;
+      this.gameHasStarted = true;
+      this.countDownTimer();
+      console.log("buttcheeks", this.secondsLeft);
+    }
+    if(event.keyCode === 32 && event.target == document.body){
+      event.preventDefault();
     }
     if(event.keyCode === 16){ //checks for shift
       this.shiftIsOn = true;
     } else {
     this.checkTyping(event, this.typeIndex);
+    this.checkScroll();
     }
   }
 
@@ -100,14 +111,18 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.typeArray = this.typeText.split('');
+    this.wpm = "0";
+    this.totalChars = 0;
+    this.totalWords = 0;
+    this.secondsLeft = 60;
     this.shiftIsOn = false;
     this.gameHasStarted = false;
     this.typeArray = []
     this.typeIndex = 0;
-    this.totalNumberTyped = 0;
     this.numberIncorrect = 0;
+    this.textFieldContainer = 0
     for(var i = 0; i < this.typeText.length; i++){
+      this.totalChars++;
       let character = {
         char: this.typeText.charAt(i),
         wasTyped: false,
@@ -115,15 +130,15 @@ export class GameComponent implements OnInit {
         isCurrent: false,
       }
       this.typeArray.push(character);
+      if (this.typeText.charAt(i) == " "){
+        this.totalWords++;
+      }
     }
-    console.log("TYPE ARRAY", this.typeArray);
-
+    this.avgWordLength = this.totalChars/this.totalWords
+    console.log('AVERAGE WORD LENGTH: ', this.avgWordLength);
   }
 
   checkTyping(e, n){
-    console.log("HERES THE STUFF", e, this.typeArray[n])
-    // this.typeArray[n].isCurrent = false;
-    // this.typeArray[n + 1].isCurrent = true;
     var letter;
     if(this.shiftIsOn){
       letter = e.key.toUpperCase()
@@ -134,26 +149,40 @@ export class GameComponent implements OnInit {
       this.typeArray[n].isCurrent = false
       this.typeArray[n + 1].isCurrent = true;
     }
-    console.log("EEEEEE", e.key)
     if (letter !== this.typeArray[n].char){
-      console.log("YOU DID BAD MY GUY");
       this.typeArray[n].gotWrong = true;
       this.numberIncorrect++
     }
     this.typeArray[n].wasTyped = true;
-    this.totalNumberTyped++;
     this.typeIndex++;
   }
 
-  // setStyle(w){
-  //   let styles = {
-  //     'background-color' : this.typeArray[w].gotWrong ? 'rgb(230, 10, 94)' : 'rgb(26,25,25)',
-  //     'color' : this.typeArray[w].wasTyped ? 'rgb(254, 238, 13)' : 'white',
-  //   }
-  // }
+  checkScroll(){
+    if (this.typeIndex % 50 == 0 && this.typeIndex != 0){
+      this.textFieldContainer += 30;
+    }
+  }
 
-  spaceTest(){
-    console.log("PooPoo")
+  countDownTimer(){
+    var interval = setInterval(()=> {
+      this.updateWPM();
+      if (this.secondsLeft == 0){
+        clearInterval(interval);
+        this.endTheGame();
+      } else {
+      this.secondsLeft--;
+      }
+    }, 1000)
+  }
+
+  endTheGame(){
+    console.log("THE GAME IS OVER")
+  }
+
+  updateWPM(){
+    let gross = ((this.typeIndex - this.numberIncorrect)/this.avgWordLength);
+    let timeElapsed = 60 - this.secondsLeft;
+    this.wpm = ((gross)/(timeElapsed/60)).toFixed(3);
   }
 
 }
