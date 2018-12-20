@@ -1,4 +1,6 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, Inject } from '@angular/core';
+// import { MAT_SNACK_BAR_DATA } from '@angular/material';
+import { MatSnackBar } from '@angular/material'
 
 @Component({
   selector: 'app-game',
@@ -77,8 +79,10 @@ export class GameComponent implements OnInit {
   totalChars: number;
   totalWords: number;
   avgWordLength: number;
+  appComponent: any;
 
-  constructor() { }
+  constructor(public snack: MatSnackBar) { 
+   }
 
   //LISTEN FOR KEYDOWN EVENTS:::::
 
@@ -177,6 +181,13 @@ export class GameComponent implements OnInit {
 
   endTheGame(){
     console.log("THE GAME IS OVER")
+    let snackBarRef = this.snack.open("Game Over! Your final score is " + this.wpm, "dismiss", {
+      duration: 10000
+    })
+    snackBarRef.afterDismissed().subscribe(()=> {
+      console.log("THIS BIG DADDY WAS DISMISSED")
+      this.ngOnInit();
+    })
   }
 
   updateWPM(){
