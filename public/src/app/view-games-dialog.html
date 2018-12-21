@@ -1,0 +1,10 @@
+<h1>Choose a Game: </h1>
+<p>Enter your name: </p>
+<mat-form-field>
+    <input matInput [(ngModel)]="username" name="username">
+</mat-form-field>
+<p *ngFor = "let game of games" style="height: 50px;"> 
+    <strong>{{game.title}}</strong>
+     -- hosted by {{game.hostname}} 
+     <button mat-button (click)="joinGame(game.id)" style="float: right;">Join This Game</button> 
+</p>

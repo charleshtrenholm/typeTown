@@ -1,3 +1,85 @@
-<p>
-  multi-player works!
-</p>
+<div class="entire-container">
+    <div class="text-field-container" [scrollTop]="textFieldContainer">
+      <span class="wordo" *ngFor="let word of typeArray" [class.underscore]="word.isCurrent" [class.typed]="word.wasTyped" [class.wrong]="word.gotWrong">{{word.char}}</span>
+    </div>
+    <div class="score-display">
+      <span class="scoreText">Time: {{ secondsLeft }}</span>
+      <span class="scoreText">Accuracy: {{ ((typeIndex - numberIncorrect)/typeIndex)*100 | number: '1.0-0' }}% </span>
+      <span class="scoreText">WPM: {{wpm}} </span>
+      <span class="scoreText">Leader: {{leader}}</span>
+    </div>
+    <div class="keyboard-container">
+      <div class="key-row">
+        <div class="key" [class.keyIsPressed]="keys[192].style">~</div>
+        <div class="key" [class.keyIsPressed]="keys[49].style">1</div>
+        <div class="key" [class.keyIsPressed]="keys[50].style">2</div>
+        <div class="key" [class.keyIsPressed]="keys[51].style">3</div>
+        <div class="key" [class.keyIsPressed]="keys[52].style">4</div>
+        <div class="key" [class.keyIsPressed]="keys[53].style">5</div>
+        <div class="key" [class.keyIsPressed]="keys[54].style">6</div>
+        <div class="key" [class.keyIsPressed]="keys[55].style">7</div>
+        <div class="key" [class.keyIsPressed]="keys[56].style">8</div>
+        <div class="key" [class.keyIsPressed]="keys[57].style">9</div>
+        <div class="key" [class.keyIsPressed]="keys[48].style">0</div>
+        <div class="key" [class.keyIsPressed]="keys[189].style">-</div>
+        <div class="key" [class.keyIsPressed]="keys[187].style">=</div>
+        <div class="key delete" [class.keyIsPressed]="keys[8].style">Delete</div>
+      </div>
+      <div class="key-row">
+        <div class="key tab" [class.keyIsPressed]="keys[9].style">tab</div>
+        <div class="key" [class.keyIsPressed]="keys[81].style">q</div>
+        <div class="key" [class.keyIsPressed]="keys[87].style">w</div>
+        <div class="key" [class.keyIsPressed]="keys[69].style">e</div>
+        <div class="key" [class.keyIsPressed]="keys[82].style">r</div>
+        <div class="key" [class.keyIsPressed]="keys[84].style">t</div>
+        <div class="key" [class.keyIsPressed]="keys[89].style">y</div>
+        <div class="key" [class.keyIsPressed]="keys[85].style">u</div>
+        <div class="key" [class.keyIsPressed]="keys[73].style">i</div>
+        <div class="key" [class.keyIsPressed]="keys[79].style">o</div>
+        <div class="key" [class.keyIsPressed]="keys[80].style">p</div>
+        <div class="key" [class.keyIsPressed]="keys[219].style">[</div>
+        <div class="key" [class.keyIsPressed]="keys[221].style">]</div>
+        <div class="key tab" [class.keyIsPressed]="keys[220].style">\</div>
+      </div>
+      <div class="key-row">
+        <div class="key long" [class.keyIsPressed]="keys[20].style">caps lock</div>
+        <div class="key" [class.keyIsPressed]="keys[65].style">a</div>
+        <div class="key" [class.keyIsPressed]="keys[83].style">s</div>
+        <div class="key" [class.keyIsPressed]="keys[68].style">d</div>
+        <div class="key" [class.keyIsPressed]="keys[70].style">f</div>
+        <div class="key" [class.keyIsPressed]="keys[71].style">g</div>
+        <div class="key" [class.keyIsPressed]="keys[72].style">h</div>
+        <div class="key" [class.keyIsPressed]="keys[74].style">j</div>
+        <div class="key" [class.keyIsPressed]="keys[75].style">k</div>
+        <div class="key" [class.keyIsPressed]="keys[76].style">l</div>
+        <div class="key" [class.keyIsPressed]="keys[186].style">;</div>
+        <div class="key" [class.keyIsPressed]="keys[222].style">'</div>
+        <div class="key return" [class.keyIsPressed]="keys[13].style">return</div>
+      </div>
+      <div class="key-row">
+        <div class="key shift" [class.keyIsPressed]="keys[16].style">shift</div>
+        <div class="key" [class.keyIsPressed]="keys[90].style">z</div>
+        <div class="key" [class.keyIsPressed]="keys[88].style">x</div>
+        <div class="key" [class.keyIsPressed]="keys[67].style">c</div>
+        <div class="key" [class.keyIsPressed]="keys[86].style">v</div>
+        <div class="key" [class.keyIsPressed]="keys[66].style">b</div>
+        <div class="key" [class.keyIsPressed]="keys[78].style">n</div>
+        <div class="key" [class.keyIsPressed]="keys[77].style">m</div>
+        <div class="key" [class.keyIsPressed]="keys[188].style">,</div>
+        <div class="key" [class.keyIsPressed]="keys[190].style">.</div>
+        <div class="key" [class.keyIsPressed]="keys[191].style">/</div>
+        <div class="key shift" [class.keyIsPressed]="keys[16].style">shift</div>
+      </div>
+      <div class="key-row">
+        <div class="key"></div>
+        <div class="key"></div>
+        <div class="key"></div>
+        <div class="key"></div>
+        <div class="key space" [class.keyIsPressed]="keys[32].style"></div>
+        <div class="key"></div>
+        <div class="key"></div>
+        <div class="key tab"></div>
+      </div>
+    </div>
+  <!-- </div> -->
+  

@@ -1,0 +1,8 @@
+<h1>Waiting for other players...</h1>
+<h2>People Joined so far: </h2>
+<ul *ngIf="!countdown">
+    <li *ngFor="let player of players" [style.backgroundColor]="player.color">{{player.name}}</li>
+</ul>
+<h2 *ngIf="countdown" style="text-align: center;">Beginning game in {{countdown}}</h2>
+<hr />
+<button mat-button (click)="beginWasClicked()">Begin</button>

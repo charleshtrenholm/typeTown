@@ -1,0 +1,113 @@
+/* @import url('https://fonts.googleapis.com/css?family=Nova+Mono'); */
+
+.entire-container{
+    width: 60%;
+    height: 90%;
+    margin: 0px auto;
+    background-color: rgb(26, 25, 25);
+    border-radius: 10px;
+    /* overflow: hidden; */
+}
+
+.text-field-container{
+    padding: 10px;
+    background-color: rgb(26,25,25);
+    color: white;
+    width: 95%;
+    margin: 0px auto;
+    border-radius: 10px;
+    height: 30%;
+    font-family: monospace;
+    font-size: 2em;
+    overflow: scroll;
+}
+
+.keyboard-container{
+    background-color: rgb(26,25,25);
+    width: 95%;
+    margin: 0px auto;
+    height: 55%;
+}
+
+.score-display{
+    background-color: black;
+    width: 95%;
+    margin: 0px auto;
+    height: 10%;
+}
+
+.key-row{
+    height: 19%;
+    width: 100%;
+    padding-top: 2px;
+}
+
+.key{
+    display: inline-block;
+    width: 6.2%;
+    background-color: black;
+    color: white;
+    padding: 2.5%;
+    font-size: 0.7em;
+    box-sizing: border-box;
+    border: 1px solid white;
+    margin-right: .2%;
+    margin-left: .2%;
+    height: 95%;
+    border-radius: 5px;
+}
+
+.keyIsPressed{
+    background-image: linear-gradient(rgb(230,10,94), rgb(254, 238, 13));
+}
+
+.long{
+    width: 12% !important;
+}
+
+.tab{
+    width: 9.5% !important;
+}
+
+.shift{
+    width: 16% !important;
+}
+
+.return{
+    width: 14% !important;
+}
+
+.delete{
+    width: 13% !important;
+}
+
+.space{
+    width: 48% !important;
+}
+.scoreText{
+    display: inline-block;
+    color: rgb(230, 10, 94);
+    font-size: 1.5em;
+    width: 23%;
+    margin-top: 12px;
+    margin-left: 12px;
+}
+
+.wordo{
+    display: inline;
+}
+
+.underscore{
+    /* text-decoration: underline overline red; */
+    background-color: white;
+    color: rgb(26,25,25)
+}
+
+.typed{
+    color: rgb(254, 238, 13)
+}
+
+.wrong{
+    color: rgb(230, 10, 94) !important;
+}
+

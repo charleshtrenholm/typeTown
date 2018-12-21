@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 // import { GameComponent } from './game/game.component';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatFormFieldModule, MatInputModule } from '@angular/material';
-import { Router } from '@angular/router';
+import { Router, Params, ActivatedRoute } from '@angular/router';
 import { HttpService } from './http.service';
-import { TypeGameService } from './type-game.service';
-import { Observable, Subscription } from 'rxjs'
-import { Socket } from 'ngx-socket-io';
+// import { TypeGameService } from './type-game.service';
+// import { Observable, Subscription } from 'rxjs'
+import * as io from 'socket.io-client';
 
 
 
@@ -19,10 +19,14 @@ export interface DialogData {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent implements OnInit {
   title = 't y p e t o w n';
 
-  constructor(public dialog: MatDialog) { }
+  constructor(
+    public dialog: MatDialog,
+    private _router: Router
+  ) { }
 
   ngOnInit(){
     console.log("Type land");
@@ -34,6 +38,16 @@ export class AppComponent implements OnInit {
     })
   }
 
+  showJoinGroups(){
+    const dialogRef = this.dialog.open(ViewGamesDialog, {
+      width: '500px'
+    })
+  }
+
+  showReadRules(){
+    this._router.navigate(['/'])
+  }
+
 }
 
 @Component({
@@ -43,29 +57,30 @@ export class AppComponent implements OnInit {
 
 //GAME FORM MODAL
 
-export class GameFormDialog { 
+export class GameFormDialog implements OnInit { 
 
-  redirectId = this.socket.fromEvent<any>('addedGame')
   hostname: string;
   gametitle: string;
-  private _gameSub: Subscription;
-  gameData: Observable<any>
 
   constructor(
     public dialogRef: MatDialogRef<GameFormDialog>,
     private _router: Router,
     private _http: HttpService,
-    private _typeGameService: TypeGameService,
     private _form: MatFormFieldModule,
     private _input: MatInputModule,
-    private socket: Socket
   ) {}
+
+  socket: any;
+
+  ngOnInit(){
+  this.socket = io();
+  }
 
   cancel(){
     this.dialogRef.close();
   }
 
-  docId() {
+  public docId() {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345567890'
     
@@ -75,29 +90,20 @@ export class GameFormDialog {
     return text;
   }
 
+
   submitData(){
     let gameData = {
       id: this.docId(),
       hostname: this.hostname,
       gametitle: this.gametitle
     }
-    let observable = this._http.postNewGame(gameData)
-    observable.subscribe(data => {
-      console.log("THIS IS THE DATA WE GOT BAaaaaCK", data)
-      this._router.navigate(['/game/' + data['id']])
+    this.socket.emit('addGame', gameData)
+    this.socket.on('addedGame', data => {
+      console.log('this is the data ', data )
+      this._router.navigate(['/game/'+ data.id])
+      this.dialogRef.close()
     })
   }
-
-  // submitData(){
-  //   let gameData = {
-  //     hostname: this.hostname,
-  //     gametitle: this.gametitle
-  //   }
-  //   let observable = this._typeGameService.newTypeGame(gameData);
-  //   observable.subscribe(data => {
-  //     console.log("this is the addedGame", this.redirectId);
-  //   })
-  // }
 
 }
 
@@ -105,12 +111,36 @@ export class GameFormDialog {
 
 @Component({
   selector: 'view-games-dialog',
-  template: 'view-games-dialog.html'
+  templateUrl: 'view-games-dialog.html'
 })
 
-export class ViewGamesDialog {
+export class ViewGamesDialog implements OnInit {
+
+  socket: any;
+  games: any;
+  username: string;
+
   constructor(
     public dialogRef: MatDialogRef<ViewGamesDialog>,
-    private typeGameService: TypeGameService
+    private _router: Router
   ) { }
+
+  ngOnInit(){
+    this.socket = io();
+    this.socket.emit('lookForGames')
+    this.socket.on('gameAdded', data => {
+      console.log("we have a game: ", data)
+      this.games = data.data;
+    })
+  }
+
+  joinGame(id) { 
+    this.socket.emit('newPlayer', {username: this.username, id: id});
+    this.socket.on('joinOK', data => {  
+      this.dialogRef.close()
+      this._router.navigate(['/game/' + data.id + '/' + data.userId])
+     })
+  }
+
+
 }

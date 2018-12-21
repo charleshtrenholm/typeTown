@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { Socket } from 'socket.io-client';
 import { TypeGame } from './type-game'
 import { Observable, of } from 'rxjs'
 // import 'rxjs/add/observable/of'
@@ -18,19 +18,19 @@ export class TypeGameService {
     this.socket.emit('getGame', id);
   }
 
-  // newTypeGame(data): Observable<any> {
-  //  return of(this.socket.emit('addGame', {id: this.docId(), data: data }));
-  // }
+  newTypeGame(data): Observable<any> {
+   return of(this.socket.emit('addGame', {id: this.docId(), data: data }));
+  }
 
-  // private docId() {
-  //   let text = '';
-  //   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345567890'
+  private docId() {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345567890'
     
-  //   for(let i = 0; i < 5; i++){
-  //     text += possible.charAt(Math.floor(Math.random() * possible.length));
-  //   }
-  //   return text;
-  // }
+    for(let i = 0; i < 5; i++){
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
 
 
 }
