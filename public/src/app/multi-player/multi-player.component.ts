@@ -121,10 +121,12 @@ export class MultiPlayerComponent implements OnInit {
   ngOnInit() {
     this._route.params.subscribe((params: Params) => {
       this.gameID = params.id;
+      this.player = params.playerId;
     })
     this.leader = '';
     this.socket = io();
-    this.player = this.socket.on('gotPlayerId')
+    // this.player = this.socket.on('gotPlayerId')
+    console.log("PLAYER ID ??????? ", this.player);
     this.wpm = "0";
     this.totalChars = 0;
     this.totalWords = 0;
@@ -138,6 +140,15 @@ export class MultiPlayerComponent implements OnInit {
 
     this.socket.emit('getPlayerId');
     this.socket.emit('listenForNewPlayers', this.gameID);
+
+    this.socket.on('updateData', data => {
+      console.log("updated DATA: ", data);
+      this.secondsLeft = data.time;
+      this.leader = data.leader;
+      console.log("LEADER: ", this.leader);
+      this.updateWPM();
+      this.socket.emit('playerUpdate', { playerId: this.player, id: this.gameID, wpm: this.wpm});
+    })
     // this.socket.on('playerJoined', data => {
     //   console.log("SOCKET DATA FOOL", data)
     //   this.typeArray = []
@@ -224,11 +235,6 @@ export class MultiPlayerComponent implements OnInit {
     })
     dialogRef.afterClosed().subscribe(() => {
       this.socket.emit('gameHasStarted', this.gameID)
-      this.socket.on('updateData', data => {
-        console.log("updated DATA: ", data);
-        this.secondsLeft = data.time;
-        this.leader = data.leader.name;
-      })
     })
   }
 
@@ -244,6 +250,7 @@ export class MultiPlayerComponent implements OnInit {
 export class WaitingScreenDialog implements OnInit {
 
   gameID: string;
+  playerId: string;
   socket: any;
   players: any;
   countdown: number;
@@ -255,6 +262,7 @@ export class WaitingScreenDialog implements OnInit {
 
   ngOnInit() {
     this.gameID = this.data.id;
+    this.playerId = this.data.playerId
     this.socket = io();
     this.socket.emit('listenForNewPlayers', this.gameID)
     this.socket.on('playerJoined', data => {

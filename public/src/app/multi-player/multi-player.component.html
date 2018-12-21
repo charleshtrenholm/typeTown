@@ -6,7 +6,7 @@
       <span class="scoreText">Time: {{ secondsLeft }}</span>
       <span class="scoreText">Accuracy: {{ ((typeIndex - numberIncorrect)/typeIndex)*100 | number: '1.0-0' }}% </span>
       <span class="scoreText">WPM: {{wpm}} </span>
-      <span class="scoreText">Leader: {{leader}}</span>
+      <span class="scoreText" [style.color]="leader.color">Leader: {{leader.name}}</span>
     </div>
     <div class="keyboard-container">
       <div class="key-row">

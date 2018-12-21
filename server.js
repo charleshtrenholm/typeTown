@@ -14,6 +14,15 @@ app.use(express.static(__dirname + "/public/dist/public"));
 const io = require('socket.io')(server)
 const gameArray = []
 
+function randomPlayerId(){
+    let possible = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    let id = '';
+    for(var i = 0; i < 5; i++){
+        id += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return id;
+}
+
 function randomColor(){
     let r = Math.floor((Math.random() * 155) + 100)
     let g = Math.floor((Math.random() * 155) + 100)
@@ -30,13 +39,15 @@ function findGameById(id){
 }
 
 function leader(game){
-    let highestWPM = game.players[0].wpm;
-    for(let i = 1; i < game.players.length; i++){
-        if (game.players[i].wpm > highestWPM){
-            highestWPM = game.players[i].wpm
+    console.log("this is the leader:");
+    let leader = game.players[0];
+    for(let i = 0; i < game.players.length; i++){
+        if (game.players[i].wpm > leader.wpm){
+            leader = game.players[i];
+            game.leader = game.players[i];
         }
     }
-    return highestWPM;
+    return leader;
 }
     
     io.on('connection', socket => {
@@ -47,7 +58,8 @@ function leader(game){
             let newPlayer = {
                 name: data.hostname,
                 color: randomColor(),
-                wpm: 0
+                wpm: 0,
+                playerId: randomPlayerId()
             }
             let newGame = {
                 id: data.id,
@@ -55,11 +67,12 @@ function leader(game){
                 hostname: data.hostname,
                 players: [newPlayer],
                 leader: data.hostname,
-                secondsRemaining: 60
+                secondsRemaining: 60,
+                beingPlayed: false
             }
             gameArray.push(newGame)
             socket.join(data.id);
-            socket.emit('addedGame', {id: data.id})
+            socket.emit('addedGame', {id: data.id, playerId: newPlayer.playerId})
             io.emit('gameAdded', {data: gameArray})
         })
 
@@ -71,6 +84,7 @@ function leader(game){
         socket.on('newPlayer', data => {
             console.log("PLAYER DATA: ", data)
             let newPlayer = {
+                playerId: randomPlayerId(),
                 name: data.username,
                 color: randomColor(),
                 wpm: 0
@@ -79,7 +93,7 @@ function leader(game){
                 if(gameArray[i].id == data.id){
                     console.log("WE GOT A MATCH");
                     gameArray[i].players.push(newPlayer)
-                    socket.emit('joinOK', {id: data.id})
+                    socket.emit('joinOK', {id: data.id, playerId: newPlayer.playerId})
                     io.to(data.id).emit('playerJoined', gameArray[i]) // once the player has already joined
                 }
             }
@@ -99,21 +113,35 @@ function leader(game){
         })
 
         socket.on('gameHasStarted', id => {
-            console.log("GAME ID: ", id)
             let game = findGameById(id)
-            console.log("HERE IS THE GAME", game)
+            if (game.beingPlayed == true){
+                return; //?
+            } else {
+            game.beingPlayed = true;
             let interval = setInterval(() => {
                 if(game.secondsRemaining == 0){
                     io.to(id).emit('gameHasEnded');
                     clearInterval(interval);
                 } else {
                     game.secondsRemaining--;
-                    console.log("SECONDS LEFT: ", game.secondsRemaining);
-                    io.to(id).emit('updateData', {time: game.secondsRemaining, leader: leader(game)})
+                    let lead = leader(game);
+                    io.to(id).emit('updateData', {time: game.secondsRemaining, leader: lead})
                 }
             }, 1000)
+        }
         })
 
+        socket.on('playerUpdate', data => {
+            let game = findGameById(data.id)
+            console.log("HERE IS THE DATA: ", data)
+            console.log("HERE IS THE GAME: ", game);
+            for (let i = 0; i < game.players.length; i++){
+                if(game.players[i].playerId == data.playerId){
+                    game.players[i].wpm = data.wpm;
+                    console.log("WPMWPMWPMWPMWPMW", game.players[i]);
+                }
+            }
+        })
 
     })
     

@@ -6,7 +6,7 @@ import { MultiPlayerComponent } from './multi-player/multi-player.component';
 
 const routes: Routes = [
   {path: "game", component: GameComponent},
-  {path: 'game/:id', component: MultiPlayerComponent}
+  {path: 'game/:id/:playerId', component: MultiPlayerComponent}
 ];
 
 @NgModule({

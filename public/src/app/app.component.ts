@@ -80,7 +80,7 @@ export class GameFormDialog implements OnInit {
     this.dialogRef.close();
   }
 
-  public docId() {
+  docId() {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345567890'
     
@@ -100,7 +100,7 @@ export class GameFormDialog implements OnInit {
     this.socket.emit('addGame', gameData)
     this.socket.on('addedGame', data => {
       console.log('this is the data ', data )
-      this._router.navigate(['/game/'+ data.id])
+      this._router.navigate([`game/${data.id}/${data.playerId}`])
       this.dialogRef.close()
     })
   }
@@ -125,6 +125,16 @@ export class ViewGamesDialog implements OnInit {
     private _router: Router
   ) { }
 
+  // docId() {
+  //   let text = '';
+  //   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345567890'
+    
+  //   for(let i = 0; i < 5; i++){
+  //     text += possible.charAt(Math.floor(Math.random() * possible.length));
+  //   }
+  //   return text;
+  // } 
+
   ngOnInit(){
     this.socket = io();
     this.socket.emit('lookForGames')
@@ -137,8 +147,9 @@ export class ViewGamesDialog implements OnInit {
   joinGame(id) { 
     this.socket.emit('newPlayer', {username: this.username, id: id});
     this.socket.on('joinOK', data => {  
+      console.log('JOIN OK; JOIN USERNAME: ', data);
       this.dialogRef.close()
-      this._router.navigate(['/game/' + data.id + '/' + data.userId])
+      this._router.navigate([`game/${data.id}/${data.playerId}`])
      })
   }
 
