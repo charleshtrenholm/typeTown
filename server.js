@@ -39,7 +39,6 @@ function findGameById(id){
 }
 
 function leader(game){
-    console.log("this is the leader:");
     let leader = game.players[0];
     for(let i = 0; i < game.players.length; i++){
         if (game.players[i].wpm > leader.wpm){
@@ -91,7 +90,6 @@ function leader(game){
             }    
             for(let i = 0; i < gameArray.length; i++){
                 if(gameArray[i].id == data.id){
-                    console.log("WE GOT A MATCH");
                     gameArray[i].players.push(newPlayer)
                     socket.emit('joinOK', {id: data.id, playerId: newPlayer.playerId})
                     io.to(data.id).emit('playerJoined', gameArray[i]) // once the player has already joined
@@ -114,8 +112,8 @@ function leader(game){
 
         socket.on('gameHasStarted', id => {
             let game = findGameById(id)
-            if (game.beingPlayed == true){
-                return; //?
+            if (game == undefined){
+                return; 
             } else {
             game.beingPlayed = true;
             let interval = setInterval(() => {
@@ -133,14 +131,16 @@ function leader(game){
 
         socket.on('playerUpdate', data => {
             let game = findGameById(data.id)
-            console.log("HERE IS THE DATA: ", data)
-            console.log("HERE IS THE GAME: ", game);
             for (let i = 0; i < game.players.length; i++){
                 if(game.players[i].playerId == data.playerId){
                     game.players[i].wpm = data.wpm;
-                    console.log("WPMWPMWPMWPMWPMW", game.players[i]);
                 }
             }
+        })
+
+        socket.on('playerTypeIndex', data => {
+            console.log("DATATA: ", data);
+            socket.broadcast.to(data.id).emit('otherPlayerIndex', {index: data.index, color: 'purple'})
         })
 
     })

@@ -94,14 +94,11 @@ export class MultiPlayerComponent implements OnInit {
   @HostListener("window: keydown", ['$event'])
   keyDownEvent(event) {
     this.keys[event.keyCode].style = true;
-    // if (!this.gameHasStarted){
-    //   this.gameHasStarted = true;
-    //   // this.countDownTimer();
-    //   console.log("SECONDS LEFT:::> ", this.secondsLeft);
-    // }
+
     if(event.keyCode === 32 && event.target == document.body){
-      event.preventDefault();
+      event.preventDefault(); //prevents space bar from automatically scrolling target window
     }
+
     if(event.keyCode === 16){ //checks for shift
       this.shiftIsOn = true;
     } else {
@@ -125,8 +122,6 @@ export class MultiPlayerComponent implements OnInit {
     })
     this.leader = '';
     this.socket = io();
-    // this.player = this.socket.on('gotPlayerId')
-    console.log("PLAYER ID ??????? ", this.player);
     this.wpm = "0";
     this.totalChars = 0;
     this.totalWords = 0;
@@ -142,22 +137,15 @@ export class MultiPlayerComponent implements OnInit {
     this.socket.emit('listenForNewPlayers', this.gameID);
 
     this.socket.on('updateData', data => {
-      console.log("updated DATA: ", data);
       this.secondsLeft = data.time;
       this.leader = data.leader;
-      console.log("LEADER: ", this.leader);
       this.updateWPM();
       this.socket.emit('playerUpdate', { playerId: this.player, id: this.gameID, wpm: this.wpm});
     })
-    // this.socket.on('playerJoined', data => {
-    //   console.log("SOCKET DATA FOOL", data)
-    //   this.typeArray = []
-    //   for(var i = 0; i < this.typeText.length; i++){ 
-    //     for(var i = 0; i < data.players; i++){
-          
-    //     }
-    //   }
-    // })
+
+    this.socket.on('otherPlayerIndex', data => {
+      console.log("OTHER PLAYER INDEX DATA: ", data);
+    })
 
 
     for(var i = 0; i < this.typeText.length; i++){
@@ -194,6 +182,7 @@ export class MultiPlayerComponent implements OnInit {
     }
     this.typeArray[n].wasTyped = true;
     this.typeIndex++;
+    this.socket.emit('playerTypeIndex', {playerId: this.player, id: this.gameID, index: this.typeIndex})
   }
 
   //WORK ON SCROLLING LOGIC >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -203,18 +192,6 @@ export class MultiPlayerComponent implements OnInit {
       this.textFieldContainer += 30;
     }
   }
-
-  // countDownTimer(){
-  //   var interval = setInterval(()=> {
-  //     this.updateWPM();
-  //     if (this.secondsLeft == 0){
-  //       clearInterval(interval);
-  //       this.endTheGame();
-  //     } else {
-  //     this.secondsLeft--;
-  //     }
-  //   }, 1000)
-  // }
 
   endTheGame(){
     console.log("THE GAME IS OVER")
@@ -292,3 +269,4 @@ export class WaitingScreenDialog implements OnInit {
 
 }
 
+//MARK winner-screen-dialog component .....|||.....|||.....|||.....|||.....|||.....|||

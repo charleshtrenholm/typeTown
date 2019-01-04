@@ -1,10 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
-// import { GameComponent } from './game/game.component';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatFormFieldModule, MatInputModule } from '@angular/material';
 import { Router, Params, ActivatedRoute } from '@angular/router';
 import { HttpService } from './http.service';
-// import { TypeGameService } from './type-game.service';
-// import { Observable, Subscription } from 'rxjs'
 import * as io from 'socket.io-client';
 
 
@@ -124,16 +121,6 @@ export class ViewGamesDialog implements OnInit {
     public dialogRef: MatDialogRef<ViewGamesDialog>,
     private _router: Router
   ) { }
-
-  // docId() {
-  //   let text = '';
-  //   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz12345567890'
-    
-  //   for(let i = 0; i < 5; i++){
-  //     text += possible.charAt(Math.floor(Math.random() * possible.length));
-  //   }
-  //   return text;
-  // } 
 
   ngOnInit(){
     this.socket = io();
