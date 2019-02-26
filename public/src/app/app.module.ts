@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpService } from './http.service';
 import { HttpClientModule } from '@angular/common/http';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { Keys } from './resources/keys';
 
 const config: SocketIoConfig = { url: 'http://localhost:6789', options: {}}
 
@@ -47,7 +48,7 @@ const config: SocketIoConfig = { url: 'http://localhost:6789', options: {}}
     MatSnackBarModule
   ],
   entryComponents: [GameFormDialog, AppComponent, WaitingScreenDialog, MultiPlayerComponent, ViewGamesDialog],
-  providers: [GameFormDialog, WaitingScreenDialog, MultiPlayerComponent, AppComponent, HttpService, ViewGamesDialog],
+  providers: [Keys, GameFormDialog, WaitingScreenDialog, MultiPlayerComponent, AppComponent, HttpService, ViewGamesDialog],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
