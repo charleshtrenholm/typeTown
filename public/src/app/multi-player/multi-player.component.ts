@@ -201,9 +201,6 @@ export class WaitingScreenDialog implements OnInit {
     this.socket.on('playerClickedCountdown', () => {
       this.beginGame()
     })
-
-    console.log(this.gameID, this.playerId, this.players, "OOOF");
-
   }
 
   beginWasClicked(){
