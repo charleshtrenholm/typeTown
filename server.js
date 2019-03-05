@@ -1,7 +1,8 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-// var games = require('./config/games')
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const Game = require('./config/game').Game;
+const Player = require('./config/game').Player;
 
 const server = app.listen(6789, function(){
     console.log('listening on port 6789');
@@ -30,116 +31,185 @@ function randomColor(){
     return `rgb(${r},${g},${b})`
 }
 
-function findGameById(id){
-    for(let i = 0; i < gameArray.length; i++){
-        if (gameArray[i].id == id){
-            return gameArray[i];
+function findGameById(id, callback){
+    Game.findOne({id: id}, function(err, gameCallback){
+        if (err) {
+            callback(err, null)
+        } else {
+            callback(null, gameCallback)
         }
+    });
+}
+
+function updateBeingPlayed(id){
+    Game.findOneAndUpdate({id: id}, {beingPlayed: true}, function(err, result){
+        if (err){
+            console.log("UpdateBeingPlayed error >>>", err.message)
+        } else {
+            return result
+        }
+    })
+}
+
+function addPlayerToGame(player, id){
+    Game.findOneAndUpdate({id: id}, {$push: {players: player}}, function(err){
+        if(err){
+            console.log("AddPlayerToGame error >>>", err.message)
+        } 
+    })
+}
+
+async function findAllGames(){
+    try {
+        const results = await Game.find({});
+        return results;
+    } catch (err) {
+        throw err;
     }
 }
 
-function leader(game){
-    let leader = game.players[0];
-    for(let i = 0; i < game.players.length; i++){
-        if (game.players[i].wpm > leader.wpm){
-            leader = game.players[i];
-            game.leader = game.players[i];
+
+function findLeader(id, callback){
+    Game.find({id: id}, function(err, result){
+        if(err){
+            callback(err, null)
+        } else {
+            callback(null, result);
         }
-    }
-    return leader;
+    })
 }
+
     
     io.on('connection', socket => {
         
         socket.on('addGame', data => {
 
-            console.log("data: ", data)
-            let newPlayer = {
+            let newPlayer = new Player({
                 name: data.hostname,
                 color: randomColor(),
                 wpm: 0,
                 playerId: randomPlayerId()
-            }
-            let newGame = {
+            });
+
+            newPlayer.save(function(err){
+                if(err) console.log(err.message);
+            });
+
+            let newGame = new Game({
                 id: data.id,
                 title: data.gametitle,
                 hostname: data.hostname,
                 players: [newPlayer],
-                leader: data.hostname,
+                leader: newPlayer,
                 secondsRemaining: 60,
                 beingPlayed: false
-            }
-            gameArray.push(newGame)
+            });
+
+            newGame.save(function(err){
+                if(err) console.log(err.message);
+            });
+
+            gameArray.push(newGame) //////////////////////
             socket.join(data.id);
             socket.emit('addedGame', {id: data.id, playerId: newPlayer.playerId})
-            io.emit('gameAdded', {data: gameArray})
-        })
+            io.emit('gameAdded', {data: findAllGames()})///////////////
+        });
 
-        socket.on('lookForGames', ()=> {
-            console.log("GAME ARRAY: ", gameArray)
-            socket.emit('gameAdded', {data: gameArray}) // re-emits all games to ViewGamesComponent
-        })
+        socket.on('lookForGames', async () => {
+            const findall =  await findAllGames();
+            socket.emit('gameAdded', {data: findall}) // re-emits all games to ViewGamesComponent
+        });
 
         socket.on('newPlayer', data => {
-            console.log("PLAYER DATA: ", data)
-            let newPlayer = {
+
+            let newPlayer = new Player({
                 playerId: randomPlayerId(),
                 name: data.username,
                 color: randomColor(),
                 wpm: 0
-            }    
-            for(let i = 0; i < gameArray.length; i++){
-                if(gameArray[i].id == data.id){
-                    gameArray[i].players.push(newPlayer)
-                    socket.emit('joinOK', {id: data.id, playerId: newPlayer.playerId})
-                    io.to(data.id).emit('playerJoined', gameArray[i]) // once the player has already joined
+            })
+
+            newPlayer.save(function(err){
+                if(err) {
+                    console.log(err.message);
+                }               
+            })
+
+            addPlayerToGame(newPlayer, data.id);
+            console.log("DOUBLE CHECK", newPlayer)
+            socket.emit('joinOK', {id: data.id, playerId: newPlayer.playerId});
+            // io.to(data.id).emit('playerJoined', findGameById(data.id));
+
+            // Re-emit new array of players to players waiting
+            findGameById(data.id, function(err, game){
+                if(err){
+                    console.log(err.message);
+                } else {
+                    io.to(data.id).emit('playerJoined', game);
                 }
-            }
-    })
+            })
+
+        })
     
         socket.on('listenForNewPlayers', id => { //when the player gets to the wait screen
             socket.join(id)
-            for(let i = 0; i < gameArray.length; i++){
-                if(gameArray[i].id == id){
-                    socket.emit('playerJoined', gameArray[i])
+            findGameById(id, function(err, gameCallback){
+                if(err){
+                    console.log(err.message);
+                } else {
+                    socket.emit('playerJoined', gameCallback);
                 }
-            }
-        })
+            });
+        });
 
         socket.on('beginWasClicked', id => {
             io.to(id).emit('playerClickedCountdown')
         })
 
         socket.on('gameHasStarted', id => {
-            let game = findGameById(id)
-            if (game == undefined){
-                return; 
-            } else {
-            game.beingPlayed = true;
-            let interval = setInterval(() => {
-                if(game.secondsRemaining == 0){
+            updateBeingPlayed(id);
+            let seconds = 60;
+            let interval = setInterval( () => {
+                console.log('seconds:::', seconds)
+                if(seconds <= 0){
                     io.to(id).emit('gameHasEnded');
                     clearInterval(interval);
                 } else {
-                    game.secondsRemaining--;
-                    let lead = leader(game);
-                    io.to(id).emit('updateData', {time: game.secondsRemaining, leader: lead})
-                }
-            }, 1000)
-        }
-        })
+                    seconds--;
+                    findLeader(id, function(err, game){
+                        if(err){
+                            console.log(err.message);
+                        } else {
+                            console.log("GAMEjjj ", game);
+                            io.to(id).emit('updateData', {time: seconds, leader: leader})
+                        };
+                    });
+                };
+            }, 1000);
+        });
+
+        //TODO:: findgameAndUpdate here
 
         socket.on('playerUpdate', data => {
-            let game = findGameById(data.id)
-            for (let i = 0; i < game.players.length; i++){
-                if(game.players[i].playerId == data.playerId){
-                    game.players[i].wpm = data.wpm;
+            let game = findGameById(data.id, function(err, game){
+                if(err){
+                    console.log(err.message);
+                } else {
+                    game.players.map(function(player){
+                        if(player.playerId == data.playerId){
+                            player.wpm = data.wpm;
+                        }
+                    })
                 }
-            }
+            }) ///////////////////////
+            // for (let i = 0; i < game.players.length; i++){
+            //     if(game.players[i].playerId == data.playerId){
+            //         game.players[i].wpm = data.wpm;
+            //     }
+            // }
         })
 
         socket.on('playerTypeIndex', data => {
-            console.log("DATATA: ", data);
             socket.broadcast.to(data.id).emit('otherPlayerIndex', {index: data.index, color: 'purple'})
         })
 

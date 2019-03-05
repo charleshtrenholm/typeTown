@@ -13,7 +13,7 @@ import { Keys } from '../resources/keys'
 export class GameComponent implements OnInit {
 
 
-  keys: any;
+  keys: object;
   typeText = "Did you ever hear the Tragedy of Darth Plagueis the wise? I thought not. It's not a story the Jedi would tell you. It's a Sith legend. Darth Plagueis was a Dark Lord of the Sith, so powerful and so wise he could use the Force to influence the midichlorians to create life... He had such a knowledge of the dark side that he could even keep the ones he cared about from dying. The dark side of the Force is a pathway to many abilities some consider to be unnatural. He became so powerful... the only thing he was afraid of was losing his power, which eventually, of course, he did. Unfortunately, he taught his apprentice everything he knew, then his apprentice killed him in his sleep. It's ironic he could save others from death, but not himself."
   gameHasStarted: boolean;
   shiftIsOn: boolean;
@@ -26,14 +26,14 @@ export class GameComponent implements OnInit {
   totalChars: number;
   totalWords: number;
   avgWordLength: number;
-  appComponent: any;
+  appComponent: object;
 
   constructor(
     public snack: MatSnackBar,
     private _keys: Keys
   ) { }
 
-  //LISTEN FOR KEYDOWN EVENTS:::::
+  //LISTEN FOR KEYDOWN EVENTS
 
   @HostListener("window: keydown", ['$event'])
   keyDownEvent(event) {
@@ -132,7 +132,7 @@ export class GameComponent implements OnInit {
     let snackBarRef = this.snack.open("Game Over! Your final score is " + this.wpm, "dismiss", {
       duration: 10000
     })
-    snackBarRef.afterDismissed().subscribe(()=> {
+    snackBarRef.afterDismissed().subscribe(() => {
       this.ngOnInit();
     })
   }

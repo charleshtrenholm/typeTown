@@ -88,6 +88,7 @@ export class MultiPlayerComponent implements OnInit {
     this.socket.emit('listenForNewPlayers', this.gameID);
 
     this.socket.on('updateData', data => {
+      console.log('TIME::', data.time);
       this.secondsLeft = data.time;
       this.leader = data.leader;
       this.updateWPM();
@@ -136,7 +137,7 @@ export class MultiPlayerComponent implements OnInit {
     this.socket.emit('playerTypeIndex', {playerId: this.player, id: this.gameID, index: this.typeIndex})
   }
 
-  //TODO: work on scrolling logic
+  //TODO: work on scrolling logic;
 
   checkScroll(){
     if (this.typeIndex % 50 == 0 && this.typeIndex != 0){
@@ -194,11 +195,14 @@ export class WaitingScreenDialog implements OnInit {
     this.socket = io();
     this.socket.emit('listenForNewPlayers', this.gameID)
     this.socket.on('playerJoined', data => {
+      console.log('PLAYER JOINED DATA', data)
       this.players = data.players;
     })
     this.socket.on('playerClickedCountdown', () => {
       this.beginGame()
     })
+
+    console.log(this.gameID, this.playerId, this.players, "OOOF");
 
   }
 
